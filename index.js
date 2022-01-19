@@ -56,7 +56,30 @@ app.post("/users", validateUser, async (req, res, next) => {
 
 app.patch("/users/:userId", validateUser, async (req, res, next) => {
 
-});
+  try {
+    const{ username,password,age} = req.body;
+    const users = await fs.promises
+    .readFile('./user.json',{encoding: 'utf-8'} )
+    .then((data)=> JSON.parse(data));
+    const newUsers = users.map((user)=> {
+      if(user.id !== req.params.userId) return user;
+      return {
+        username,
+        age,
+        id: req.params.userId,
+      };
+      
+  
+  
+    });
+  await fs.promises.writeFile('./user.json', JSON.stringify(newUsers),{encoding:"utf8"})
+  
+  res.status(200).send({message:"user edited"});
+  } catch ( error){
+    next({status: 500, internalMessage: error.message });
+  }
+  });
+
 
 
 app.get('/users', async (req,res,next)=>{
@@ -74,9 +97,15 @@ app.get('/users', async (req,res,next)=>{
 })
 
 
-app.use((err,req,res,next)=>{
+app.use((err,req,res,next)=>{if(err.status>=500){console.log(err.internalMessage);
+  return res.status(500).send({error:"internal server Error"})
+    }
+    res.status(err.status).send(err.message)
 
 })
+
+
+
 
 
 
