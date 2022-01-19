@@ -46,14 +46,19 @@ router.post("/users", validateUser, async (req, res, next) => {
       next({status: 500, internalMessage: error.message });
     }
     });
-    router.delete("/:username/", function(request, response) {
-        var username = request.params.username;
-       
-        request.db.get('users').remove({'userName': username}, function(error, document) {
-         if (error) response.send(error);
-         return response.send("deleted");
-        });
-       });
+    
+
+       router.post('/users/login', (req, res,next) => {
+        fs.readFile('./user.json',(err,data)=>{
+          const arr= JSON.parse(data)
+          const user =arr.find (user=>user.username==req.body.username)&& (user.password==req.body.password)
+          if(!user){ return next( {status:403, message:"user name or password incorrect"})
+        }return res.status(200).send({message:"logged in sucessfully"})
+         })
+       })
+
+
+
 
        router.delete('/users/:userId', (req, res) => {
         const userIndex = getUserIndex(req.params.userId)
@@ -63,17 +68,13 @@ router.post("/users", validateUser, async (req, res, next) => {
         users.splice(userIndex, 1)
         res.json(users)
        })
-       router.post('/login', (req, res) => {
-        // Insert Login Code Here
-        let username = req.body.username;
-        let password = req.body.password;
-        res.send(`Username: ${username} Password: ${password}`);
-      });
-
-
-
-
-
+      //  router.post('/login', (req, res) => {
+      //   // Insert Login Code Here
+      //   let username = req.body.username;
+      //   let password = req.body.password;
+      //   res.send(`Username: ${username} Password: ${password}`);
+      // });
+      
 
 
 

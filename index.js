@@ -81,7 +81,16 @@ app.patch("/users/:userId", validateUser, async (req, res, next) => {
   });
 
 
+  
 
+   app.post('/users/login', (req, res,next) => {
+     fs.readFile('./user.json',(err,data)=>{
+       const arr= JSON.parse(data)
+       const user =arr.find (user=>user.username==req.body.username)&& (user.password==req.body.password)
+       if(!user){ return next( {status:403, message:"user name or password incorrect"})
+     }return res.status(200).send({message:"logged in sucessfully"})
+      })
+    })
 app.get('/users', async (req,res,next)=>{
   try {
   const age = Number(req.query.age)
@@ -105,6 +114,14 @@ app.use((err,req,res,next)=>{if(err.status>=500){console.log(err.internalMessage
 })
 
 
+app.delete('/users/:userId', (req, res) => {
+    const userIndex = getUserIndex(req.params.userId)
+   
+    if (userIndex === -1) return res.status(404).json({})
+   
+    users.splice(userIndex, 1)
+    res.json(users)
+   })
 
 
 
